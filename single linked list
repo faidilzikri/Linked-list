@@ -1,0 +1,171 @@
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+typedef int infotype;
+typedef struct tElmtList *address;
+typedef struct tElmtList {
+	infotype 	info;
+	address 	next;
+} ElmtList;
+
+typedef struct {
+	address		first;
+} List;
+
+
+//SELEKTOR
+#define First(L) (L).first
+#define Next(P) (P)->next
+#define Info(P) (P)->info
+
+//KONSTANTA
+#define Nil NULL
+#define Infinity 99999
+
+
+
+bool isListEmpty (List L){
+	return (First(L)==Nil);
+}
+
+void createList (List *L){
+	First(*L) = Nil;
+
+}
+
+address alokasi (infotype X){
+	address P = address(malloc(sizeof(ElmtList)));
+	if(P==Nil)
+		return Nil;
+
+	Info(P) = X;
+	Next(P) = Nil;
+	return P;
+
+}
+
+void dealokasi (address *P){
+	free(*P);
+}
+
+address getLast (List *L) {
+    address temp = First(*L);
+    while(Next(temp) != Nil) {
+        temp = Next(temp);
+    }
+    return temp;
+}
+
+void insertFirst (List *L, infotype X){
+
+	address P = alokasi(X);
+	if(P!=Nil){
+		Next(P)=First(*L);
+		First(*L) = P;
+	}
+}
+
+void insertAfter (List *L, address P, address Prec){
+
+	Next(P)=Prec->next;
+	Prec->next=P;
+}
+
+
+
+void insertLast (List *L, infotype X){
+
+	address P = alokasi(X);
+	if(isListEmpty(*L))
+		insertFirst(L, X);
+	else{
+		address last = getLast(L);
+		insertAfter(L,P,last);
+	}
+}
+
+
+void insertFirst(List *L,address P){
+
+	Next(P)=First(*L);
+	First(*L) = P;
+}
+
+void insertLast(List *L,address P){
+
+	if(isListEmpty(*L))
+		insertFirst(L, P);
+	else{
+		address last = getLast(L);
+		insertAfter(L,P,last);
+	}
+}
+
+void deleteFirst (List *L, infotype *X){
+
+	address P = First(*L);
+	*X = Info(P);
+    if (Next(First(*L))==Nil) {   // 1 element only
+        First(*L)=Nil;
+        dealokasi(&P);
+    } else {
+        First(*L) = Next(P);
+        dealokasi(&P);
+    }
+}
+
+void deleteAfter (List *L, address *Pdel, address Prec){
+	*Pdel = Next(Prec);
+	if(*Pdel!=Nil) {
+		Next(Prec) = Next(*Pdel);
+	}
+	dealokasi(Pdel);
+}
+
+void deleteLast(List *L, infotype *X){
+
+	if(Next(First(*L))==Nil){
+		//one element only
+		*X = Info(First(*L));
+		createList(L);
+	}else{
+		address prev = First(*L);
+		while(Next(Next(prev))!=Nil ){
+			prev = Next(prev);
+		}
+		address last =getLast(L);
+		*X = Info(last);
+		deleteAfter(L,&last,prev);
+	}
+}
+
+void printInfo (List L){
+	cout<<"[";
+	if(!isListEmpty(L)){
+		address P = First(L);
+		while(Next(P) != Nil){
+			cout<<Info(P)<<", ";
+			P = Next(P);
+		}
+		cout<<Info(P);
+	}
+	cout<<"]"<<endl;
+}
+
+int main(){
+	List L;
+	createList(&L);
+
+	//Soal A
+	int n,x;
+	cin>>n;
+	for (int i =0;i<n;i++){
+		cin>>x;
+		insertFirst(&L, x);
+		insertLast(&L, x);
+	}
+	printInfo (L);
+
+
+}
